@@ -26,4 +26,49 @@ Execution Time: 0.465 ms
 (6 filas)							
 ```
 
-Grafico Final:
+## Grafico Final:
+
+![](Grafico.png)
+
+#Experimento 2:
+
+## Ejemplo de plan de ejecucion:
+### Para un consulta sin indexar
+
+```sql
+QUERY PLAN						
+------------------------------------------------------------------------------------------------------						
+Seq Scan on film  (cost=0.00..145.00 rows=446 width=109) (actual time=0.180..9.639 rows=318 loops=1)						
+Filter: ((description ~~* '%man%'::text) OR (description ~~* '%woman%'::text))						
+Rows Removed by Filter: 682						
+Planning Time: 4.229 ms						
+Execution Time: 9.664 ms						
+(5 filas)						
+```
+
+### Para un consulta indexada
+```sql
+QUERY PLAN							
+------------------------------------------------------------------------------------------------------							
+Seq Scan on film  (cost=0.00..142.50 rows=238 width=109) (actual time=0.053..0.536 rows=239 loops=1)							
+Filter: ('''man'' | ''woman'''::tsquery @@ indexado)							
+Rows Removed by Filter: 761							
+Planning Time: 0.353 ms							
+Execution Time: 0.557 ms							
+(5 filas)				
+```
+### Para una consulta con ranking topk = 2
+```sql
+QUERY PLAN						
+------------------------------------------------------------------------------------------------------------------						
+Limit  (cost=145.47..145.48 rows=2 width=113) (actual time=1.142..1.143 rows=2 loops=1)						
+->  Sort  (cost=145.47..146.07 rows=238 width=113) (actual time=1.141..1.142 rows=2 loops=1)						
+Sort Key: (ts_rank_cd(film.indexado	''man'' | ''woman'''::tsquery)) DESC					
+Sort Method: top-N heapsort  Memory: 25kB						
+->  Seq Scan on film  (cost=0.00..143.09 rows=238 width=113) (actual time=0.082..1.066 rows=239 loops=1)						
+Filter: ('''man'' | ''woman'''::tsquery @@ indexado)						
+Rows Removed by Filter: 761						
+Planning Time: 0.277 ms						
+Execution Time: 1.157 ms						
+(9 filas)
+```
