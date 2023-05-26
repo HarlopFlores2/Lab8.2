@@ -30,7 +30,7 @@ Execution Time: 0.465 ms
 
 ![](Grafico.png)
 
-#Experimento 2:
+# Experimento 2:
 
 ## Ejemplo de plan de ejecucion:
 ### Para un consulta sin indexar
